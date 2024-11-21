@@ -1,6 +1,6 @@
 // src/screens/AddMenuItemScreen.tsx
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Text, TouchableOpacity, Animated } from 'react-native';
 import { MenuItem } from '../types/MenuItem';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -12,6 +12,7 @@ const AddMenuItemScreen = () => {
   const [description, setDescription] = useState('');
   const [course, setCourse] = useState('');
   const [price, setPrice] = useState('');
+  const scaleAnim = new Animated.Value(1);
 
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'AddMenuItem'>>();
   const route = useRoute();
@@ -36,6 +37,20 @@ const AddMenuItemScreen = () => {
     setCourse('');
     setPrice('');
     navigation.navigate('Home');
+  };
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.9,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
   };
 
   return (
@@ -71,35 +86,73 @@ const AddMenuItemScreen = () => {
         style={styles.input}
       />
       <View style={styles.buttonContainer}>
-        <Button title="Save" onPress={addItemHandler} />
-        <Button title="Cancel" onPress={cancelHandler} color="red" />
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+          <TouchableOpacity
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={addItemHandler}
+            style={styles.saveButton}
+          >
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+        </Animated.View>
+        <TouchableOpacity onPress={cancelHandler} style={styles.cancelButton}>
+          <Text style={styles.cancelButtonText}>Cancel</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { flex: 1, padding: 20 },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
   },
   picker: {
     height: 50,
-    marginBottom: 10,
+    width: '100%',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 16,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  saveButton: {
+    backgroundColor: '#3498db',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#e74c3c',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+  },
+  cancelButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 
